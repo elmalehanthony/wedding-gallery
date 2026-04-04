@@ -6,30 +6,48 @@
   <title>Laurence &amp; Anthony · January 29, 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <!-- HERO -->
   <header class="hero">
-    <div class="hero-overlay"></div>
+    <div class="hero-bg"></div>
+    <div class="hero-vignette"></div>
     <div class="hero-content">
-      <p class="hero-eyebrow">January 29, 2026 &nbsp;·&nbsp; Dreams Vista Cancún</p>
-      <h1 class="hero-monogram">L <span>&amp;</span> A</h1>
+      <div class="hero-ornament">
+        <svg viewBox="0 0 200 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="10" x2="80" y2="10" stroke="#D4BC7D" stroke-width="0.5" opacity="0.6"/>
+          <circle cx="100" cy="10" r="3" stroke="#D4BC7D" stroke-width="0.5" fill="none" opacity="0.8"/>
+          <circle cx="100" cy="10" r="1" fill="#D4BC7D" opacity="0.8"/>
+          <line x1="120" y1="10" x2="200" y2="10" stroke="#D4BC7D" stroke-width="0.5" opacity="0.6"/>
+        </svg>
+      </div>
+      <p class="hero-eyebrow">29 Janvier 2026 &nbsp;·&nbsp; Dreams Vista Cancún</p>
+      <h1 class="hero-monogram">L <em>&amp;</em> A</h1>
       <h2 class="hero-names">Laurence &amp; Anthony Elmaleh</h2>
+      <div class="hero-ornament hero-ornament--flip">
+        <svg viewBox="0 0 200 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="0" y1="10" x2="80" y2="10" stroke="#D4BC7D" stroke-width="0.5" opacity="0.6"/>
+          <circle cx="100" cy="10" r="3" stroke="#D4BC7D" stroke-width="0.5" fill="none" opacity="0.8"/>
+          <circle cx="100" cy="10" r="1" fill="#D4BC7D" opacity="0.8"/>
+          <line x1="120" y1="10" x2="200" y2="10" stroke="#D4BC7D" stroke-width="0.5" opacity="0.6"/>
+        </svg>
+      </div>
       <p class="hero-sub">A collection of our most treasured moments</p>
       <a href="#gallery" class="hero-cta">View the Gallery</a>
     </div>
-    <div class="hero-scroll-hint">↓</div>
+    <div class="hero-scroll-hint">
+      <span></span>
+    </div>
   </header>
 
   <!-- FILTER BAR -->
   <nav class="filter-bar" id="filter-bar">
     <div class="filter-inner">
       <div class="filter-group" id="category-filters">
-        <span class="filter-label">Section</span>
-        <button class="filter-btn active" data-filter-type="category" data-filter-value="all">All Photos</button>
+        <button class="filter-btn active" data-filter-type="category" data-filter-value="all">All</button>
         <button class="filter-btn" data-filter-type="category" data-filter-value="getting-ready">Getting Ready</button>
         <button class="filter-btn" data-filter-type="category" data-filter-value="ceremony">Ceremony</button>
         <button class="filter-btn" data-filter-type="category" data-filter-value="portraits">Portraits</button>
@@ -38,25 +56,27 @@
         <button class="filter-btn" data-filter-type="category" data-filter-value="photobooth">Photobooth</button>
       </div>
       <div class="filter-divider"></div>
-      <div class="filter-group" id="people-filters">
-        <span class="filter-label">Find yourself</span>
+      <div class="filter-group people-group">
         <div class="people-search-wrap">
-          <input type="text" id="people-search" placeholder="Search a name…" autocomplete="off" />
+          <svg class="search-icon" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <input type="text" id="people-search" placeholder="Find yourself…" autocomplete="off" />
           <div class="people-dropdown" id="people-dropdown"></div>
         </div>
         <div class="active-people-tags" id="active-people-tags"></div>
-        <button class="clear-people-btn" id="clear-people-btn" style="display:none">Clear</button>
+        <button class="clear-people-btn" id="clear-people-btn" style="display:none">Clear all</button>
       </div>
     </div>
   </nav>
 
-  <!-- GALLERY GRID -->
+  <!-- GALLERY -->
   <main class="gallery-section" id="gallery">
-    <div class="gallery-meta" id="gallery-meta">Loading photos…</div>
+    <div class="gallery-header">
+      <p class="gallery-meta" id="gallery-meta"></p>
+    </div>
     <div class="gallery-grid" id="gallery-grid"></div>
     <div class="empty-state" id="empty-state" style="display:none">
-      <p>No photos found for this filter combination.</p>
-      <button onclick="resetAllFilters()">Reset filters</button>
+      <p>No photos match this filter.</p>
+      <button onclick="resetAllFilters()">Clear filters</button>
     </div>
   </main>
 
@@ -71,22 +91,40 @@
 
   <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
-    <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
-    <button class="lb-prev" id="lb-prev" aria-label="Previous">‹</button>
-    <button class="lb-next" id="lb-next" aria-label="Next">›</button>
+    <div class="lb-toolbar">
+      <div class="lb-counter" id="lb-counter"></div>
+      <div class="lb-actions">
+        <a class="lb-download" id="lb-download" href="#" download aria-label="Download photo" title="Download">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Save</span>
+        </a>
+        <button class="lb-close" id="lb-close" aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="lb-prev" id="lb-prev" aria-label="Previous">&#8249;</button>
+    <button class="lb-next" id="lb-next" aria-label="Next">&#8250;</button>
     <div class="lb-img-wrap">
       <img class="lb-img" id="lb-img" src="" alt="" />
       <div class="lb-loader" id="lb-loader"></div>
     </div>
     <div class="lb-caption" id="lb-caption"></div>
-    <div class="lb-counter" id="lb-counter"></div>
   </div>
   <div class="lightbox-bg" id="lightbox-bg"></div>
 
   <!-- FOOTER -->
   <footer class="site-footer">
+    <div class="footer-ornament">
+      <svg viewBox="0 0 240 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="12" x2="100" y2="12" stroke="#D4BC7D" stroke-width="0.5" opacity="0.3"/>
+        <circle cx="120" cy="12" r="4" stroke="#D4BC7D" stroke-width="0.5" fill="none" opacity="0.5"/>
+        <circle cx="120" cy="12" r="1.5" fill="#D4BC7D" opacity="0.5"/>
+        <line x1="140" y1="12" x2="240" y2="12" stroke="#D4BC7D" stroke-width="0.5" opacity="0.3"/>
+      </svg>
+    </div>
     <p class="footer-monogram">L &amp; A</p>
-    <p class="footer-date">January 29, 2026 &nbsp;·&nbsp; Dreams Vista Cancún, Mexico</p>
+    <p class="footer-date">January 29, 2026 · Dreams Vista Cancún, Mexico</p>
     <p class="footer-note">With love &amp; gratitude for sharing this day with us</p>
   </footer>
 
