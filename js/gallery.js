@@ -1,5 +1,5 @@
 // ============================================================
-//  L & A Wedding Gallery — gallery.js
+//  L & A Wedding Gallery — gallery.js v2
 // ============================================================
 
 const CONFIG = {
@@ -8,8 +8,8 @@ const CONFIG = {
   videoEmbed: '', // e.g. 'https://www.youtube.com/embed/VIDEO_ID'
 };
 
-let allPhotos  = [];
-let allPeople  = [];
+let allPhotos      = [];
+let allPeople      = [];
 let activeCategory = 'all';
 let activePeople   = new Set();
 let lightboxIndex  = 0;
@@ -32,8 +32,7 @@ async function loadPhotos() {
     allPhotos = await res.json();
   } catch(e) {
     allPhotos = [];
-    document.getElementById('gallery-meta').textContent =
-      'Could not load photos — check data/photos.json';
+    document.getElementById('gallery-meta').textContent = 'No photos loaded yet.';
   }
 }
 
@@ -41,9 +40,7 @@ async function loadPeople() {
   try {
     const res = await fetch(CONFIG.peopleFile);
     allPeople = await res.json();
-  } catch(e) {
-    allPeople = [];
-  }
+  } catch(e) { allPeople = []; }
 }
 
 // ── VIDEO ────────────────────────────────────────────────────
@@ -73,10 +70,9 @@ function buildPeopleDropdown() {
   dd.innerHTML = '';
   allPeople.forEach(person => {
     const opt = document.createElement('div');
-    opt.className = 'people-option';
+    opt.className = 'people-option' + (activePeople.has(person.id) ? ' selected' : '');
     opt.textContent = person.name;
-    opt.dataset.id = person.id;
-    if (activePeople.has(person.id)) opt.classList.add('selected');
+    opt.dataset.id  = person.id;
     opt.addEventListener('click', () => togglePerson(person));
     dd.appendChild(opt);
   });
@@ -86,10 +82,7 @@ function setupPeopleSearch() {
   const input = document.getElementById('people-search');
   const dd    = document.getElementById('people-dropdown');
 
-  input.addEventListener('focus', () => {
-    buildPeopleDropdown();
-    dd.classList.add('open');
-  });
+  input.addEventListener('focus', () => { buildPeopleDropdown(); dd.classList.add('open'); });
 
   input.addEventListener('input', () => {
     const q = input.value.toLowerCase();
@@ -112,11 +105,8 @@ function setupPeopleSearch() {
 }
 
 function togglePerson(person) {
-  if (activePeople.has(person.id)) {
-    activePeople.delete(person.id);
-  } else {
-    activePeople.add(person.id);
-  }
+  if (activePeople.has(person.id)) activePeople.delete(person.id);
+  else activePeople.add(person.id);
   renderPeopleTags();
   buildPeopleDropdown();
   applyFilters();
@@ -133,7 +123,7 @@ function renderPeopleTags() {
     if (!person) return;
     const tag = document.createElement('div');
     tag.className = 'person-tag';
-    tag.innerHTML = `${person.name} <button aria-label="Remove ${person.name}">×</button>`;
+    tag.innerHTML = `${person.name}<button aria-label="Remove ${person.name}">×</button>`;
     tag.querySelector('button').addEventListener('click', () => togglePerson(person));
     container.appendChild(tag);
   });
@@ -155,22 +145,21 @@ function applyFilters() {
 function updateMeta(count) {
   const label  = activeCategory === 'all' ? 'All Photos' : formatCategory(activeCategory);
   const suffix = activePeople.size > 0
-    ? ` · filtered by ${activePeople.size} person${activePeople.size > 1 ? 's' : ''}`
+    ? ` · ${activePeople.size} person${activePeople.size > 1 ? 's' : ''} tagged`
     : '';
   document.getElementById('gallery-meta').textContent =
     `${label} · ${count} photo${count !== 1 ? 's' : ''}${suffix}`;
 }
 
 function formatCategory(cat) {
-  const map = {
+  return {
     'getting-ready': 'Getting Ready',
     'ceremony':      'Ceremony',
     'portraits':     'Portraits',
     'cocktail-hour': 'Cocktail Hour',
     'reception':     'Reception',
     'photobooth':    'Photobooth',
-  };
-  return map[cat] || cat;
+  }[cat] || cat;
 }
 
 // ── RENDER GRID ──────────────────────────────────────────────
@@ -185,17 +174,15 @@ function renderGallery(photos) {
   photos.forEach((photo, idx) => {
     const item = document.createElement('div');
     item.className = 'photo-item';
-    item.style.animationDelay = `${Math.min(idx * 40, 600)}ms`;
+    item.style.animationDelay = `${Math.min(idx * 35, 500)}ms`;
 
-    const tagNames = (photo.tags || []).map(tid => {
-      const p = allPeople.find(x => x.id === tid);
-      return p ? p.name : '';
-    }).filter(Boolean);
+    const tagNames = (photo.tags || [])
+      .map(tid => { const p = allPeople.find(x => x.id === tid); return p ? p.name : ''; })
+      .filter(Boolean);
 
     item.innerHTML = `
       <img
         src="${photo.thumbnail || photo.url}"
-        data-full="${photo.url}"
         alt="${photo.alt || 'Wedding photo'}"
         loading="lazy"
       />
@@ -226,13 +213,13 @@ function setupLightbox() {
     if (e.key === 'ArrowRight') moveLightbox(1);
   });
 
-  let touchStartX = 0;
-  document.getElementById('lightbox').addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-  document.getElementById('lightbox').addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(dx) > 50) moveLightbox(dx > 0 ? -1 : 1);
+  // Touch swipe
+  let tx = 0;
+  const lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 48) moveLightbox(dx > 0 ? -1 : 1);
   });
 }
 
@@ -261,6 +248,7 @@ function showLightboxPhoto() {
   const loader = document.getElementById('lb-loader');
   const cap    = document.getElementById('lb-caption');
   const ctr    = document.getElementById('lb-counter');
+  const dl     = document.getElementById('lb-download');
 
   img.style.opacity = '0';
   loader.classList.add('active');
@@ -274,10 +262,22 @@ function showLightboxPhoto() {
   };
   newImg.src = photo.url;
 
-  const tagNames = (photo.tags || []).map(tid => {
-    const p = allPeople.find(x => x.id === tid);
-    return p ? p.name : '';
-  }).filter(Boolean);
+  // ── Download button ──────────────────────────────────────
+  // Try direct download first; falls back to opening in new tab
+  // (cross-origin images from Google Photos/iCloud may not allow
+  //  forced download — opening in new tab lets the user long-press
+  //  to save on mobile, or right-click → Save on desktop)
+  dl.href   = photo.url;
+  dl.target = '_blank';
+  dl.rel    = 'noopener noreferrer';
+  // Attempt to set filename from URL or photo id
+  const filename = photo.filename || photo.id || `LA-wedding-${lightboxIndex + 1}`;
+  dl.download = filename;
+
+  // ── Caption ──────────────────────────────────────────────
+  const tagNames = (photo.tags || [])
+    .map(tid => { const p = allPeople.find(x => x.id === tid); return p ? p.name : ''; })
+    .filter(Boolean);
 
   cap.textContent = tagNames.length > 0 ? tagNames.join(' · ') : (photo.alt || '');
   ctr.textContent = `${lightboxIndex + 1} / ${filteredPhotos.length}`;
